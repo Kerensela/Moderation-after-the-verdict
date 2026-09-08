@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moderation After the Verdict</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    html{color-scheme:light dark}
+    body{margin:0}
+    img{max-width:100%}
+    [hidden]{display:none!important}
+  </style>
+</head>
+<body>
+<style>
+:root{
+  --ground:#F1F2F6;
+  --canvas:#FBFBFD;
+  --surface:#FFFFFF;
+  --dot:#D8DAE6;
+  --line:#DCDEE9;
+  --wire:#C3C6D6;
+  --ink:#15161D;
+  --ink-2:#565A6C;
+  --ink-3:#8A8FA2;
+  --accent:#4B3FD4;
+  --accent-soft:#ECEAFC;
+  --ok:#12775A;    --ok-soft:#DFF0E9;
+  --warn:#9C5D06;  --warn-soft:#F8EDDA;
+  --stop:#B32F44;  --stop-soft:#FBE5E9;
+  --shadow:0 1px 2px rgba(21,22,29,.05), 0 10px 26px -18px rgba(21,22,29,.35);
+  --d:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --m:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1017; --canvas:#16171F; --surface:#1C1E28;
+    --dot:#282B38; --line:#2C2F3D; --wire:#3D4154;
+    --ink:#EEEFF5; --ink-2:#A5A9BA; --ink-3:#787D91;
+    --accent:#A398FF; --accent-soft:#252248;
+    --ok:#4FC79B;   --ok-soft:#123027;
+    --warn:#E2A64F; --warn-soft:#31250F;
+    --stop:#F0798D; --stop-soft:#371A22;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 26px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1017; --canvas:#16171F; --surface:#1C1E28;
+  --dot:#282B38; --line:#2C2F3D; --wire:#3D4154;
+  --ink:#EEEFF5; --ink-2:#A5A9BA; --ink-3:#787D91;
+  --accent:#A398FF; --accent-soft:#252248;
+  --ok:#4FC79B;   --ok-soft:#123027;
+  --warn:#E2A64F; --warn-soft:#31250F;
+  --stop:#F0798D; --stop-soft:#371A22;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 26px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--d);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 26px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* header */
+header{padding:44px 0 4px}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 14px;white-space:nowrap}
+h1{font-size:clamp(2.2rem,5.2vw,3.5rem);font-weight:800;line-height:.98;
+  letter-spacing:-.032em;margin:0;text-wrap:balance}
+h1 span{color:var(--accent)}
+.lede{margin:16px 0 0;max-width:56ch;font-size:1.02rem;color:var(--ink-2)}
+
+/* the four-beat rail */
+.rail{display:flex;align-items:stretch;gap:0;margin:34px 0 0;flex-wrap:wrap}
+.beat{display:flex;align-items:center;gap:11px;padding:11px 15px;background:var(--surface);
+  border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.beat b{font-weight:600;font-size:.9rem;white-space:nowrap}
+.beat .i{color:var(--ink-3);display:flex}
+.beat.hot{border-color:var(--accent);background:var(--accent-soft)}
+.beat.hot b, .beat.hot .i{color:var(--accent)}
+.arw{display:flex;align-items:center;color:var(--wire);padding:0 8px}
+
+/* sections */
+section{margin-top:52px}
+.shead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;margin-bottom:16px}
+h2{font-size:1.35rem;font-weight:700;letter-spacing:-.022em;margin:0}
+.shead p{margin:0;color:var(--ink-3);font-size:.9rem}
+
+/* palette of options */
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:820px){.opts{grid-template-columns:repeat(2,1fr)}}
+.opt{display:flex;align-items:center;gap:10px;padding:14px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--line);font-size:.88rem;font-weight:500}
+.opt .i{color:var(--accent);display:flex;flex:none}
+
+/* flow canvas */
+.flow{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:var(--canvas);box-shadow:var(--shadow)}
+.fhead{display:flex;align-items:center;gap:14px;padding:16px 22px;
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.fhead h3{margin:0;font-size:1.02rem;font-weight:700;letter-spacing:-.015em}
+.fhead .fsub{color:var(--ink-3);font-size:.86rem;white-space:nowrap}
+.pill{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+  padding:5px 11px;border-radius:20px;white-space:nowrap}
+.canvas{padding:26px 26px 30px;
+  background-image:radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size:22px 22px;background-position:-1px -1px}
+
+/* trigger node */
+.trigger{display:inline-flex;align-items:center;gap:10px;padding:11px 16px;
+  border-radius:10px;background:var(--surface);border:1px solid var(--accent);
+  font-weight:600;font-size:.9rem;box-shadow:var(--shadow)}
+.trigger .i{color:var(--accent);display:flex}
+
+/* tree */
+.tree{position:relative;margin-top:0;padding-left:38px}
+.tree::before{content:"";position:absolute;left:19px;top:0;
+  height:var(--trunk,100%);width:2px;background:var(--wire);border-radius:2px}
+.branch{position:relative;display:grid;grid-template-columns:230px 34px 1fr;
+  align-items:center;gap:0;padding:13px 0;transition:opacity .2s,filter .2s}
+.branch::before{content:"";position:absolute;left:-19px;top:50%;width:19px;height:2px;
+  background:var(--wire)}
+.branch{--c:var(--ink-3);--cs:var(--surface)}
+.branch[data-v="ok"]{--c:var(--ok);--cs:var(--ok-soft)}
+.branch[data-v="warn"]{--c:var(--warn);--cs:var(--warn-soft)}
+.branch[data-v="stop"]{--c:var(--stop);--cs:var(--stop-soft)}
+
+/* verdict node */
+.verdict{display:flex;align-items:center;gap:11px;width:100%;cursor:pointer;
+  padding:13px 15px;border-radius:11px;text-align:left;font-family:var(--d);
+  background:var(--surface);border:1.5px solid var(--c);box-shadow:var(--shadow);
+  transition:transform .15s,box-shadow .15s}
+.verdict:hover{transform:translateY(-1px)}
+.glyph{width:26px;height:26px;border-radius:8px;background:var(--cs);color:var(--c);
+  display:flex;align-items:center;justify-content:center;flex:none}
+.vtxt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.vtxt b{font-size:.98rem;font-weight:700;color:var(--c);letter-spacing:-.012em}
+.vtxt span{font-family:var(--m);font-size:9.5px;letter-spacing:.03em;color:var(--ink-3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* wire */
+.wire{position:relative;height:2px;background:var(--wire);align-self:center}
+.wire::after{content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);
+  border-left:6px solid var(--wire);border-top:4px solid transparent;
+  border-bottom:4px solid transparent}
+
+/* action node */
+.act{display:flex;align-items:center;gap:11px;padding:13px 16px;border-radius:11px;
+  background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--c);
+  box-shadow:var(--shadow)}
+.act .i{color:var(--c);display:flex;flex:none}
+.act .atxt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.act b{font-size:.93rem;font-weight:600;letter-spacing:-.01em}
+.act em{font-style:normal;font-size:.8rem;color:var(--ink-3)}
+
+/* nested reason level */
+.subs{display:flex;flex-direction:column;gap:0;position:relative;padding-left:26px}
+.subs::before{content:"";position:absolute;left:0;top:33px;bottom:33px;width:2px;
+  background:var(--wire);border-radius:2px}
+.sub{position:relative;display:grid;grid-template-columns:238px 30px 1fr;
+  align-items:center;padding:9px 0}
+.sub::before{content:"";position:absolute;left:-26px;top:50%;width:26px;height:2px;
+  background:var(--wire)}
+.reason{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:9px;
+  background:var(--surface);border:1px dashed var(--c)}
+.reason code{font-family:var(--m);font-size:.75rem;font-weight:700;color:var(--c);
+  line-height:1.35}
+.sub.other .reason{border-style:dashed;border-color:var(--wire)}
+.sub.other .reason code{color:var(--ink-3)}
+.sub.other .act{border-left-color:var(--wire)}
+.sub.other .act .i{color:var(--ink-3)}
+
+/* focus */
+.tree[data-focus] .branch{opacity:.28;filter:grayscale(.85)}
+.tree[data-focus="1"] .branch:nth-of-type(1),
+.tree[data-focus="2"] .branch:nth-of-type(2),
+.tree[data-focus="3"] .branch:nth-of-type(3){opacity:1;filter:none}
+
+/* footer note */
+.note{margin-top:16px;display:flex;align-items:flex-start;gap:11px;padding:15px 18px;
+  border:1px dashed var(--line);border-radius:12px;color:var(--ink-2);font-size:.9rem}
+.note .i{color:var(--accent);flex:none;margin-top:1px;display:flex}
+footer{margin-top:44px;padding:22px 0 60px;border-top:1px solid var(--line);
+  color:var(--ink-3);font-size:.82rem}
+
+@media (max-width:640px){
+  .fhead{flex-wrap:wrap}
+  .fhead .fsub{white-space:normal}
+  .kicker{white-space:normal}
+}
+@media (max-width:900px){
+  .branch,.sub{grid-template-columns:1fr;gap:9px}
+  .branch::before,.sub::before,.tree::before,.subs::before{display:none}
+  .tree,.subs{padding-left:0}
+  .wire{display:none}
+  .act{margin-left:16px}
+  .subs{padding-left:14px;border-left:2px solid var(--wire)}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="ic-globe"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></g>
+    <g id="ic-chat"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-4.5A8 8 0 1 1 21 12z"/></g>
+    <g id="ic-mail"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></g>
+    <g id="ic-spark"><path d="M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7z"/><path d="M18.5 15.5l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"/></g>
+    <g id="ic-check"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12.5l2.8 2.8L16 9.5"/></g>
+    <g id="ic-tag"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7-7A2 2 0 0 1 3 12.2V5a2 2 0 0 1 2-2h7.2a2 2 0 0 1 1.4.6l7 7a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></g>
+    <g id="ic-folder"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></g>
+    <g id="ic-zap"><path d="M13 2L4.5 13.5H11l-1 8.5 8.5-11.5H12z"/></g>
+    <g id="ic-scissors"><path d="M4 4l11 11M20 4L9 15"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="18" r="2.5"/></g>
+    <g id="ic-scale"><path d="M12 3v18M7 21h10M12 6l-7 2 3 6 4-1 4 1 3-6z"/></g>
+    <g id="ic-shield"><path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></g>
+    <g id="ic-ok"><path d="M4 12.5l5 5L20 6.5"/></g>
+    <g id="ic-flag"><path d="M5.5 21V4.2h12l-2.4 3.9 2.4 3.9h-12"/></g>
+    <g id="ic-warn"><path d="M12 4v10M12 18.5v.5"/></g>
+    <g id="ic-stop"><path d="M6 6l12 12M18 6L6 18"/></g>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+<header>
+  <p class="kicker">Cloudinary Moderation</p>
+  <h1>Moderation after<br>the <span>verdict</span></h1>
+  <p class="lede">Cloudinary Moderation writes its result to the asset&rsquo;s metadata. MediaFlows reads that result and does whatever you tell it to do next.</p>
+
+  <div class="rail">
+    <div class="beat"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-folder"/></svg></span><b>Asset arrives</b></div>
+    <span class="arw"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6h14M11 2l4 4-4 4"/></svg></span>
+    <div class="beat"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-shield"/></svg></span><b>Moderation runs</b></div>
+    <span class="arw"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6h14M11 2l4 4-4 4"/></svg></span>
+    <div class="beat"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-tag"/></svg></span><b>Result lands in metadata</b></div>
+    <span class="arw"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6h14M11 2l4 4-4 4"/></svg></span>
+    <div class="beat hot"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-zap"/></svg></span><b>MediaFlows acts</b></div>
+  </div>
+</header>
+
+<section>
+  <div class="shead">
+    <h2>What a result can trigger</h2>
+    <p>Some examples &mdash; any of these, in any combination.</p>
+  </div>
+  <div class="opts">
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-globe"/></svg></span>Change access control</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-chat"/></svg></span>Notify a team in Slack</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-mail"/></svg></span>Email a person</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-spark"/></svg></span>Transform the asset</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-check"/></svg></span>Start an approval flow</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-tag"/></svg></span>Tag and organize</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-folder"/></svg></span>Move to a folder</div>
+    <div class="opt"><span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-zap"/></svg></span>Call your own systems</div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Example 1 &mdash; branch on the result</h2>
+    <p>Click a result to focus its path.</p>
+  </div>
+
+  <div class="flow">
+    <div class="fhead">
+      <div>
+        <h3>In-house creative</h3>
+        <div class="fsub">Made by your designers or by Gen AI</div>
+      </div>
+      <span class="pill">Example</span>
+    </div>
+    <div class="canvas">
+      <div class="trigger"><span class="i"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#ic-shield"/></svg></span>Moderation Status is set</div>
+      <div class="tree" id="t1">
+
+        <div class="branch" data-v="ok">
+          <button type="button" class="verdict">
+            <span class="glyph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#ic-ok"/></svg></span>
+            <span class="vtxt"><b>Approved</b><span>Moderation Status</span></span>
+          </button>
+          <div class="wire"></div>
+          <div class="act">
+            <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-globe"/></svg></span>
+            <span class="atxt"><b>Make it public</b><em>Access control &rarr; public</em></span>
+          </div>
+        </div>
+
+        <div class="branch" data-v="stop">
+          <button type="button" class="verdict">
+            <span class="glyph"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#ic-stop"/></svg></span>
+            <span class="vtxt"><b>Rejected</b><span>Moderation Status</span></span>
+          </button>
+          <div class="wire"></div>
+          <div class="act">
+            <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-chat"/></svg></span>
+            <span class="atxt"><b>Slack the creative team</b><em>With the rejection reasons</em></span>
+          </div>
+        </div>
+
+        <div class="branch" data-v="warn">
+          <button type="button" class="verdict">
+            <span class="glyph"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><use href="#ic-flag"/></svg></span>
+            <span class="vtxt"><b>Needs Review</b><span>Moderation Status</span></span>
+          </button>
+          <div class="wire"></div>
+          <div class="act">
+            <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-check"/></svg></span>
+            <span class="atxt"><b>Start creative approval</b><em>A person decides</em></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Example 2 &mdash; branch on the reason</h2>
+    <p>Same trigger, one level deeper.</p>
+  </div>
+
+  <div class="flow">
+    <div class="fhead">
+      <div>
+        <h3>Third-party content</h3>
+        <div class="fsub">From vendors, sellers, agencies, influencers</div>
+      </div>
+      <span class="pill">Example</span>
+    </div>
+    <div class="canvas">
+      <div class="trigger"><span class="i"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#ic-shield"/></svg></span>Moderation Status is set</div>
+      <div class="tree" id="t2">
+
+        <div class="branch" data-v="ok">
+          <button type="button" class="verdict">
+            <span class="glyph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#ic-ok"/></svg></span>
+            <span class="vtxt"><b>Approved</b><span>Moderation Status</span></span>
+          </button>
+          <div class="wire"></div>
+          <div class="act">
+            <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-globe"/></svg></span>
+            <span class="atxt"><b>Make it public</b><em>Access control &rarr; public</em></span>
+          </div>
+        </div>
+
+        <div class="branch" data-v="warn">
+          <button type="button" class="verdict">
+            <span class="glyph"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><use href="#ic-flag"/></svg></span>
+            <span class="vtxt"><b>Needs Review</b><span>Moderation Status</span></span>
+          </button>
+          <div class="wire"></div>
+          <div class="act">
+            <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-chat"/></svg></span>
+            <span class="atxt"><b>Slack the creative team</b><em>With the rejection reasons</em></span>
+          </div>
+        </div>
+
+        <div class="branch tall" data-v="stop">
+          <button type="button" class="verdict">
+            <span class="glyph"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#ic-stop"/></svg></span>
+            <span class="vtxt"><b>Rejected</b><span>then check the reasons</span></span>
+          </button>
+          <div class="wire"></div>
+          <div class="subs">
+
+            <div class="sub">
+              <div class="reason"><code>&ldquo;Background check failed&rdquo;</code></div>
+              <div class="wire"></div>
+              <div class="act">
+                <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-scissors"/></svg></span>
+                <span class="atxt"><b>Remove the background</b><em>Replace with white</em></span>
+              </div>
+            </div>
+
+            <div class="sub">
+              <div class="reason"><code>&ldquo;Likely AI-generated&rdquo;</code></div>
+              <div class="wire"></div>
+              <div class="act">
+                <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-spark"/></svg></span>
+                <span class="atxt"><b>Overlay a sparkles badge</b><em>Bottom-left corner</em></span>
+              </div>
+            </div>
+
+            <div class="sub">
+              <div class="reason"><code>&ldquo;Web match found&rdquo;</code></div>
+              <div class="wire"></div>
+              <div class="act">
+                <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-scale"/></svg></span>
+                <span class="atxt"><b>Slack the legal team</b><em>With the asset details</em></span>
+              </div>
+            </div>
+
+            <div class="sub other">
+              <div class="reason"><code>any other reason</code></div>
+              <div class="wire"></div>
+              <div class="act">
+                <span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#ic-mail"/></svg></span>
+                <span class="atxt"><b>Email the sender</b><em>Reasons listed as bullets</em></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="i"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#ic-zap"/></svg></span>
+    <span>Both flows are examples, not a template. The results, the reasons and every action are yours to define &mdash; what stays the same is that a moderation result can start any workflow you want.</span>
+  </div>
+</section>
+
+<footer>Cloudinary Moderation &rarr; downstream actions, connected through MediaFlows</footer>
+</div>
+
+<script>
+function sizeTrunks(){
+  document.querySelectorAll('.tree').forEach(function(tree){
+    var bs = tree.querySelectorAll(':scope > .branch');
+    if(!bs.length) return;
+    if(window.matchMedia('(max-width:900px)').matches){ tree.style.removeProperty('--trunk'); return; }
+    var last = bs[bs.length-1].getBoundingClientRect();
+    var top = tree.getBoundingClientRect().top;
+    tree.style.setProperty('--trunk', Math.round(last.top + last.height/2 - top) + 'px');
+  });
+}
+window.addEventListener('resize', sizeTrunks);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeTrunks);
+sizeTrunks();
+
+document.querySelectorAll('.tree').forEach(function(tree){
+  var branches = Array.prototype.slice.call(tree.querySelectorAll(':scope > .branch'));
+  branches.forEach(function(br,i){
+    br.querySelector('.verdict').addEventListener('click',function(){
+      var n = String(i+1);
+      if (tree.getAttribute('data-focus') === n) tree.removeAttribute('data-focus');
+      else tree.setAttribute('data-focus', n);
+    });
+  });
+});
+</script>
+</body>
+</html>
